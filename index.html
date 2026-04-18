@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LIL Motion — Montage Vidéo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;600;700&family=Lora:ital@0;1&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:      #080808;
+      --s1:      #0e0e0e;
+      --s2:      #141414;
+      --border:  rgba(255,255,255,0.07);
+      --accent:  #ddd8cf;
+      --gold:    #c9a84c;
+      --text:    #ddd8cf;
+      --muted:   #5a5650;
+      --display: 'Barlow Condensed', sans-serif;
+      --prose:   'Lora', serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--prose);
+      font-size: 15px;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 200;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 30px 56px;
+      background: linear-gradient(to bottom, rgba(8,8,8,0.97) 60%, transparent);
+    }
+    .logo {
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: 1.15rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: var(--text);
+    }
+    .logo-dot { color: var(--gold); }
+    .nav-links { display: flex; gap: 44px; list-style: none; }
+    .nav-links a {
+      font-family: var(--display);
+      font-weight: 300;
+      font-size: 0.7rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.25s;
+    }
+    .nav-links a:hover { color: var(--accent); }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      align-items: end;
+      padding: 0 56px 72px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-deco {
+      position: absolute; inset: 0;
+      pointer-events: none; overflow: hidden;
+    }
+    .tl-line {
+      position: absolute;
+      left: 0; right: 0; height: 1px;
+      background: linear-gradient(to right, transparent 0%, var(--border) 20%, var(--border) 80%, transparent 100%);
+      animation: tl-slide 10s linear infinite;
+      opacity: 0;
+    }
+    .tl-line:nth-child(1) { top: 28%; animation-delay: 0s;   animation-duration: 11s; }
+    .tl-line:nth-child(2) { top: 44%; animation-delay: 2.5s; animation-duration: 9s; }
+    .tl-line:nth-child(3) { top: 60%; animation-delay: 5s;   animation-duration: 13s; }
+    .tl-line:nth-child(4) { top: 74%; animation-delay: 1s;   animation-duration: 10s; }
+    .tl-clip {
+      position: absolute; height: 1px;
+      background: var(--gold);
+      animation: tl-clip 11s linear infinite; opacity: 0;
+    }
+    .tl-clip:nth-child(5) { top: 28%; width: 80px;  animation-delay: 1s; }
+    .tl-clip:nth-child(6) { top: 44%; width: 140px; animation-delay: 3.5s; animation-duration: 9s; }
+    .tl-clip:nth-child(7) { top: 60%; width: 60px;  animation-delay: 6s;  animation-duration: 13s; }
+    .tl-clip:nth-child(8) { top: 74%; width: 110px; animation-delay: 2s;  animation-duration: 10s; }
+    @keyframes tl-slide {
+      0%  { opacity: 0; } 5% { opacity: 1; } 90% { opacity: 1; } 100% { opacity: 0; }
+    }
+    @keyframes tl-clip {
+      0%  { left: -200px; opacity: 0; } 5% { opacity: 1; } 90% { opacity: 0.8; } 100% { left: 110%; opacity: 0; }
+    }
+
+    .hero-eyebrow {
+      font-family: var(--display);
+      font-weight: 300;
+      font-size: 0.65rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 28px;
+      opacity: 0;
+      animation: fadeUp 0.9s ease 0.1s forwards;
+    }
+    .hero-title {
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: clamp(5rem, 10.5vw, 10rem);
+      line-height: 0.86;
+      letter-spacing: -0.01em;
+      text-transform: uppercase;
+      color: var(--text);
+      opacity: 0;
+      animation: fadeUp 0.9s ease 0.25s forwards;
+    }
+    .hero-title-sub {
+      font-family: var(--prose);
+      font-style: italic;
+      font-weight: 400;
+      font-size: clamp(1.8rem, 3.5vw, 3.6rem);
+      color: var(--muted);
+      letter-spacing: 0;
+      display: block;
+      margin-top: 10px;
+      text-transform: none;
+    }
+    .hero-right {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding-bottom: 8px;
+      opacity: 0;
+      animation: fadeUp 0.9s ease 0.5s forwards;
+    }
+    .hero-desc {
+      font-size: 0.88rem;
+      line-height: 1.85;
+      color: var(--muted);
+      border-left: 1px solid var(--border);
+      padding-left: 28px;
+      margin-bottom: 40px;
+    }
+    .hero-desc em { color: var(--accent); font-style: italic; }
+    .cta-link {
+      font-family: var(--display);
+      font-weight: 600;
+      font-size: 0.68rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--gold);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      transition: gap 0.3s;
+    }
+    .cta-link:hover { gap: 24px; }
+    .cta-link::after {
+      content: '';
+      width: 40px; height: 1px;
+      background: var(--gold);
+      transition: width 0.3s;
+    }
+    .cta-link:hover::after { width: 56px; }
+
+    /* ABOUT */
+    .about {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      padding: 100px 56px;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      gap: 0;
+    }
+    .section-label {
+      font-family: var(--display);
+      font-weight: 300;
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding-top: 6px;
+    }
+    .about-content { max-width: 660px; }
+    .about-headline {
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: clamp(2rem, 4vw, 3.4rem);
+      text-transform: uppercase;
+      line-height: 0.95;
+      letter-spacing: 0.02em;
+      color: var(--text);
+      margin-bottom: 32px;
+    }
+    .about-headline em {
+      font-family: var(--prose);
+      font-style: italic;
+      font-weight: 400;
+      font-size: 0.52em;
+      text-transform: none;
+      color: var(--muted);
+      letter-spacing: 0;
+      display: block;
+      margin-top: 6px;
+    }
+    .about-body {
+      font-size: 0.88rem;
+      line-height: 1.9;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+    .about-body strong { color: var(--accent); font-weight: 400; }
+    .skills-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0;
+      border: 1px solid var(--border);
+      margin-top: 32px;
+    }
+    .skill-pill {
+      font-family: var(--display);
+      font-weight: 300;
+      font-size: 0.58rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 13px 18px;
+      border-right: 1px solid var(--border);
+      transition: color 0.25s, background 0.25s;
+      white-space: nowrap;
+    }
+    .skill-pill:last-child { border-right: none; }
+    .skill-pill:hover { color: var(--accent); background: var(--s1); }
+
+    /* WORK */
+    .work { padding: 100px 56px; border-bottom: 1px solid var(--border); }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 56px;
+    }
+    .section-title {
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: clamp(2.8rem, 6vw, 5rem);
+      text-transform: uppercase;
+      line-height: 0.9;
+    }
+    .section-num {
+      font-family: var(--display);
+      font-weight: 300;
+      font-size: 0.62rem;
+      letter-spacing: 0.25em;
+      color: var(--muted);
+    }
+
+    .project-list { display: flex; flex-direction: column; gap: 2px; }
+
+    .project-item {
+      display: grid;
+      grid-template-columns: 48px 1fr;
+      background: var(--s1);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      transition: border-color 0.3s;
+    }
+    .project-item:hover { border-color: rgba(201,168,76,0.22); }
+
+    .project-num-col {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-right: 1px solid var(--border);
+      font-family: var(--display);
+      font-weight: 300;
+      font-size: 0.58rem;
+      letter-spacing: 0.15em;
+      color: var(--muted);
+      writing-mode: vertical-rl;
+    }
+    .project-main { display: flex; flex-direction: column; }
+    .project-embed {
+      position: relative;
+      width: 100%;
+      padding-bottom: 44%;
+      background: var(--bg);
+    }
+    .project-embed iframe {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      border: none;
+    }
+    .project-info {
+      padding: 22px 30px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+    .project-client {
+      font-family: var(--display);
+      font-weight: 300;
+      font-size: 0.56rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 4px;
+    }
+    .project-name {
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: 1.3rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text);
+    }
+    .project-tags { display: flex; gap: 7px; margin-top: 7px; flex-wrap: wrap; }
+    .tag {
+      font-family: var(--display);
+      font-weight: 300;
+      font-size: 0.52rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 3px 9px;
+    }
+    .project-arrow {
+      width: 36px; height: 36px;
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--muted); flex-shrink: 0;
+      transition: all 0.25s;
+    }
+    .project-item:hover .project-arrow { border-color: var(--gold); color: var(--gold); }
+
+    .coming-soon {
+      border: 1px dashed var(--border);
+      padding: 52px;
+      text-align: center;
+      margin-top: 2px;
+    }
+    .coming-soon p {
+      font-family: var(--display);
+      font-weight: 300;
+      font-size: 0.62rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* APPROACH */
+    .approach {
+      border-bottom: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+    .approach-col {
+      padding: 76px 44px;
+      border-right: 1px solid var(--border);
+      transition: background 0.3s;
+    }
+    .approach-col:last-child { border-right: none; }
+    .approach-col:hover { background: var(--s1); }
+    .approach-num {
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: 3rem;
+      color: var(--border);
+      line-height: 1;
+      margin-bottom: 24px;
+      transition: color 0.3s;
+    }
+    .approach-col:hover .approach-num { color: rgba(201,168,76,0.18); }
+    .approach-title {
+      font-family: var(--display);
+      font-weight: 600;
+      font-size: 1rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text);
+      margin-bottom: 14px;
+    }
+    .approach-body {
+      font-size: 0.8rem;
+      line-height: 1.85;
+      color: var(--muted);
+    }
+
+    /* SERVICES */
+    .services {
+      border-bottom: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: 300px 1fr;
+    }
+    .services-intro {
+      padding: 100px 56px;
+      border-right: 1px solid var(--border);
+    }
+    .services-intro-title {
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: clamp(1.8rem, 3vw, 2.8rem);
+      text-transform: uppercase;
+      line-height: 0.95;
+      margin-bottom: 24px;
+      margin-top: 20px;
+    }
+    .services-intro-body {
+      font-size: 0.83rem;
+      line-height: 1.85;
+      color: var(--muted);
+    }
+    .services-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+    .service-cell {
+      padding: 48px 40px;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      transition: background 0.25s;
+    }
+    .service-cell:nth-child(even) { border-right: none; }
+    .service-cell:nth-last-child(-n+2) { border-bottom: none; }
+    .service-cell:hover { background: var(--s2); }
+    .service-num {
+      font-family: var(--display);
+      font-size: 0.54rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 18px;
+    }
+    .service-name {
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: 1.25rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text);
+      margin-bottom: 11px;
+    }
+    .service-desc {
+      font-size: 0.79rem;
+      line-height: 1.8;
+      color: var(--muted);
+    }
+
+    /* CONTACT */
+    .contact {
+      padding: 130px 56px;
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+    }
+    .contact-bg-text {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: clamp(6rem, 17vw, 16rem);
+      text-transform: uppercase;
+      color: transparent;
+      -webkit-text-stroke: 1px var(--border);
+      white-space: nowrap;
+      pointer-events: none;
+      letter-spacing: 0.08em;
+      user-select: none;
+    }
+    .contact-eyebrow {
+      font-family: var(--display);
+      font-weight: 300;
+      font-size: 0.62rem;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 24px;
+      position: relative;
+    }
+    .contact-title {
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: clamp(3rem, 7vw, 6rem);
+      text-transform: uppercase;
+      line-height: 0.88;
+      margin-bottom: 16px;
+      position: relative;
+    }
+    .contact-sub {
+      font-family: var(--prose);
+      font-style: italic;
+      font-size: 0.95rem;
+      color: var(--muted);
+      margin-bottom: 52px;
+      position: relative;
+    }
+    .contact-email {
+      font-family: var(--display);
+      font-weight: 600;
+      font-size: 0.95rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text);
+      text-decoration: none;
+      border-bottom: 1px solid var(--gold);
+      padding-bottom: 4px;
+      transition: color 0.25s;
+      position: relative;
+    }
+    .contact-email:hover { color: var(--gold); }
+    .socials {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-top: 60px;
+      position: relative;
+    }
+    .social-link {
+      font-family: var(--display);
+      font-weight: 300;
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.25s;
+    }
+    .social-link:hover { color: var(--accent); }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 28px 56px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-logo {
+      font-family: var(--display);
+      font-weight: 700;
+      font-size: 0.8rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .footer-dot { color: var(--gold); }
+    .footer-copy {
+      font-family: var(--display);
+      font-weight: 300;
+      font-size: 0.56rem;
+      letter-spacing: 0.2em;
+      color: var(--muted);
+    }
+
+    /* REVEAL */
+    .reveal {
+      opacity: 0;
+      transform: translateY(26px);
+      transition: opacity 0.75s ease, transform 0.75s ease;
+    }
+    .reveal.in { opacity: 1; transform: none; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    /* MOBILE */
+    @media (max-width: 860px) {
+      nav { padding: 22px 24px; }
+      .nav-links { display: none; }
+      .hero { grid-template-columns: 1fr; padding: 120px 24px 64px; gap: 40px; }
+      .about { grid-template-columns: 1fr; padding: 64px 24px; gap: 20px; }
+      .skills-row { flex-wrap: wrap; }
+      .work { padding: 64px 24px; }
+      .project-item { grid-template-columns: 1fr; }
+      .project-num-col { display: none; }
+      .project-embed { padding-bottom: 56.25% !important; }
+      .approach { grid-template-columns: 1fr; }
+      .approach-col { border-right: none; border-bottom: 1px solid var(--border); padding: 52px 24px; }
+      .services { grid-template-columns: 1fr; }
+      .services-intro { border-right: none; border-bottom: 1px solid var(--border); padding: 64px 24px; }
+      .services-grid { grid-template-columns: 1fr; }
+      .service-cell { border-right: none !important; }
+      .service-cell:nth-last-child(-n+2) { border-bottom: 1px solid var(--border); }
+      .service-cell:last-child { border-bottom: none; }
+      .contact { padding: 80px 24px; }
+      footer { padding: 24px; flex-direction: column; gap: 10px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="#" class="logo">LIL<span class="logo-dot">.</span>MOTION</a>
+    <ul class="nav-links">
+      <li><a href="#work">Projets</a></li>
+      <li><a href="#services">Services</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-deco" aria-hidden="true">
+      <div class="tl-line"></div>
+      <div class="tl-line"></div>
+      <div class="tl-line"></div>
+      <div class="tl-line"></div>
+      <div class="tl-clip"></div>
+      <div class="tl-clip"></div>
+      <div class="tl-clip"></div>
+      <div class="tl-clip"></div>
+    </div>
+
+    <div class="hero-left">
+      <p class="hero-eyebrow">Montage Vidéo — Éditeur Indépendant</p>
+      <h1 class="hero-title">
+        DONNER<br>FORME<br>À L'IMAGE
+        <span class="hero-title-sub">une histoire à la fois</span>
+      </h1>
+    </div>
+
+    <div class="hero-right">
+      <p class="hero-desc">
+        Je transforme des rushes en récits visuels <em>qui retiennent l'attention</em> — du sport mécanique au contenu de marque, en passant par le documentaire et le court-format réseaux.
+      </p>
+      <a href="#work" class="cta-link">Voir les projets</a>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="about" id="about">
+    <div class="section-label reveal">À propos</div>
+    <div class="about-content">
+      <h2 class="about-headline reveal">
+        Le montage,<br>c'est le vrai tournage
+        <em>— Walter Murch, éditeur de film</em>
+      </h2>
+      <p class="about-body reveal">
+        Basé en France, je suis <strong>monteur vidéo indépendant</strong> avec une approche centrée sur le rythme, la narration et l'émotion. Mon terrain naturel ce sont les <strong>sports mécaniques</strong> — mais ma pratique s'ouvre à tout contenu qui demande du sens et de la précision dans la construction d'un récit visuel.
+      </p>
+      <p class="about-body reveal">
+        J'utilise <strong>DaVinci Resolve</strong> comme outil principal — du cut à l'étalonnage — et j'accorde une attention particulière au <strong>sound design</strong>, souvent le détail qui fait la différence entre une vidéo regardée et une vidéo ressentie.
+      </p>
+      <div class="skills-row reveal">
+        <span class="skill-pill">DaVinci Resolve</span>
+        <span class="skill-pill">Sound Design</span>
+        <span class="skill-pill">Étalonnage</span>
+        <span class="skill-pill">Short-form</span>
+        <span class="skill-pill">Narration</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- WORK -->
+  <section class="work" id="work">
+    <div class="section-header reveal">
+      <h2 class="section-title">Projets<br>réalisés</h2>
+      <span class="section-num">02 projets</span>
+    </div>
+
+    <div class="project-list">
+
+      <!-- VIDEO 1 : remplace VIDEO_ID_1 par l'ID YouTube (ex: dQw4w9WgXcQ depuis youtube.com/watch?v=dQw4w9WgXcQ) -->
+      <div class="project-item reveal">
+        <div class="project-num-col">01</div>
+        <div class="project-main">
+          <div class="project-embed">
+            <iframe
+              src="https://www.youtube.com/embed/WYtFVK8LrYI"
+              title="Zinzin Préparation — Vidéo 1"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen>
+            </iframe>
+          </div>
+          <div class="project-info">
+            <div>
+              <p class="project-client">Zinzin Préparation</p>
+              <p class="project-name">Vlog Préparation #1</p>
+              <div class="project-tags">
+                <span class="tag">Montage</span>
+                <span class="tag">Sound design</span>
+                <span class="tag">Sport mécanique</span>
+              </div>
+            </div>
+            <div class="project-arrow">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                <path d="M1.5 11.5L11.5 1.5M11.5 1.5H4.5M11.5 1.5V8.5" stroke="currentColor" stroke-width="1.4"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIDEO 2 : remplace VIDEO_ID_2 par l'ID YouTube -->
+      <div class="project-item reveal">
+        <div class="project-num-col">02</div>
+        <div class="project-main">
+          <div class="project-embed">
+            <iframe
+              src="https://www.youtube.com/embed/HTt8PNEmCrw"
+              title="Zinzin Préparation — Vidéo 2"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen>
+            </iframe>
+          </div>
+          <div class="project-info">
+            <div>
+              <p class="project-client">Zinzin Préparation</p>
+              <p class="project-name">Vlog Préparation #2</p>
+              <div class="project-tags">
+                <span class="tag">Montage</span>
+                <span class="tag">Étalonnage</span>
+                <span class="tag">Sport mécanique</span>
+              </div>
+            </div>
+            <div class="project-arrow">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                <path d="M1.5 11.5L11.5 1.5M11.5 1.5H4.5M11.5 1.5V8.5" stroke="currentColor" stroke-width="1.4"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="coming-soon reveal">
+      <p>Prochains projets à venir — portfolio en construction</p>
+    </div>
+  </section>
+
+  <!-- APPROACH -->
+  <section class="approach">
+    <div class="approach-col reveal">
+      <div class="approach-num">01</div>
+      <p class="approach-title">Rythme</p>
+      <p class="approach-body">Chaque coupe est une décision. Je construis le tempo d'une vidéo comme on construit une mélodie — avec intention, tension et relâchement au bon moment.</p>
+    </div>
+    <div class="approach-col reveal">
+      <div class="approach-num">02</div>
+      <p class="approach-title">Narration</p>
+      <p class="approach-body">Même sans dialogue, il y a une histoire à raconter. Je structure les séquences pour que le spectateur soit porté du début à la fin sans s'en rendre compte.</p>
+    </div>
+    <div class="approach-col reveal">
+      <div class="approach-num">03</div>
+      <p class="approach-title">Son</p>
+      <p class="approach-body">L'audio n'est pas une piste en plus — c'est la moitié de l'image. Sound design, musique et ambiances sont construits pour servir chaque moment du montage.</p>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section class="services" id="services">
+    <div class="services-intro">
+      <p class="section-label reveal">Services</p>
+      <h2 class="services-intro-title reveal">Ce que<br>je propose</h2>
+      <p class="services-intro-body reveal">Du format court pour les réseaux au montage long format, chaque prestation est abordée avec le même niveau d'exigence.</p>
+    </div>
+    <div class="services-grid">
+      <div class="service-cell reveal">
+        <p class="service-num">01</p>
+        <p class="service-name">Montage</p>
+        <p class="service-desc">Assemblage de rushes, sélection des plans, construction narrative et rythme général de la vidéo.</p>
+      </div>
+      <div class="service-cell reveal">
+        <p class="service-num">02</p>
+        <p class="service-name">Sound Design</p>
+        <p class="service-desc">Construction d'une piste audio sur mesure — musique, effets sonores et ambiances en cohérence avec l'image.</p>
+      </div>
+      <div class="service-cell reveal">
+        <p class="service-num">03</p>
+        <p class="service-name">Étalonnage</p>
+        <p class="service-desc">Correction colorimétrique et étalonnage créatif pour une identité visuelle cohérente et percutante.</p>
+      </div>
+      <div class="service-cell reveal">
+        <p class="service-num">04</p>
+        <p class="service-name">Contenu Réseaux</p>
+        <p class="service-desc">Formats courts adaptés aux plateformes — Reels, Shorts, TikTok — pensés pour l'engagement et la rétention.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="contact" id="contact">
+    <p class="contact-bg-text" aria-hidden="true">CONTACT</p>
+    <p class="contact-eyebrow reveal">Travaillons ensemble</p>
+    <h2 class="contact-title reveal">UN PROJET<br>EN TÊTE ?</h2>
+    <p class="contact-sub reveal">Parlons-en.</p>
+    <!-- Remplace votre@email.com par ton vrai email -->
+    <a href="mailto:lil.motion@outlook.com" class="contact-email reveal">lil.motion@outlook.com</a>
+    <div class="socials reveal">
+      <!-- Remplace # par tes vrais liens -->
+      <a href="#" class="social-link">Instagram</a>
+      <a href="#" class="social-link">YouTube</a>
+      <a href="#" class="social-link">LinkedIn</a>
+    </div>
+  </section>
+
+  <footer>
+    <span class="footer-logo">LIL<span class="footer-dot">.</span>MOTION</span>
+    <span class="footer-copy">© 2026 — Montage Vidéo Indépendant</span>
+  </footer>
+
+  <script>
+    const els = document.querySelectorAll('.reveal');
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach((e, i) => {
+        if (e.isIntersecting) {
+          setTimeout(() => e.target.classList.add('in'), i * 65);
+          obs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.08 });
+    els.forEach(el => obs.observe(el));
+  </script>
+</body>
+</html>
