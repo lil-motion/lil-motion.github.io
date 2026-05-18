@@ -278,7 +278,7 @@
       color: var(--muted);
     }
 
-    .project-list { display: flex; flex-direction: column; gap: 2px; }
+    .project-list { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
     .project-item {
       display: grid;
@@ -301,6 +301,8 @@
       letter-spacing: 0.15em;
       color: var(--muted);
       writing-mode: vertical-rl;
+      width: 38px;
+      flex-shrink: 0;
     }
     .project-main { display: flex; flex-direction: column; }
     .project-embed {
@@ -372,6 +374,49 @@
       letter-spacing: 0.3em;
       text-transform: uppercase;
       color: var(--muted);
+    }
+
+    /* SHORTS */
+    .shorts { padding: 100px 56px; border-bottom: 1px solid var(--border); }
+    .shorts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 44px; }
+    .short-card {
+      background: var(--s1);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      transition: border-color 0.3s;
+    }
+    .short-card:hover { border-color: rgba(201,168,76,0.22); }
+    .short-embed {
+      position: relative;
+      width: 100%;
+      padding-bottom: 177.78%;
+      background: var(--bg);
+    }
+    .short-embed iframe {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      border: none;
+    }
+    .short-info {
+      padding: 16px 16px;
+      border-top: 1px solid var(--border);
+    }
+    .short-title {
+      font-family: var(--display);
+      font-weight: 600;
+      font-size: 0.95rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--text);
+    }
+    .short-label {
+      font-family: var(--display);
+      font-weight: 300;
+      font-size: 0.52rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 8px;
     }
 
     /* APPROACH */
@@ -600,6 +645,7 @@
       .about { grid-template-columns: 1fr; padding: 64px 24px; gap: 20px; }
       .skills-row { flex-wrap: wrap; }
       .work { padding: 64px 24px; }
+      .project-list { display: flex; flex-direction: column; gap: 2px; }
       .project-item { grid-template-columns: 1fr; }
       .project-num-col { display: none; }
       .project-embed { padding-bottom: 56.25% !important; }
@@ -611,6 +657,8 @@
       .service-cell { border-right: none !important; }
       .service-cell:nth-last-child(-n+2) { border-bottom: 1px solid var(--border); }
       .service-cell:last-child { border-bottom: none; }
+      .shorts { padding: 64px 24px; }
+      .shorts-grid { grid-template-columns: 1fr; gap: 12px; }
       .contact { padding: 80px 24px; }
       footer { padding: 24px; flex-direction: column; gap: 10px; text-align: center; }
     }
@@ -848,6 +896,30 @@
 
     <div class="coming-soon reveal">
       <p>Prochains projets à venir — portfolio en construction</p>
+    </div>
+  </section>
+
+  <!-- SHORTS -->
+  <section class="shorts">
+    <div class="section-header reveal">
+      <h2 class="section-title">Shorts</h2>
+      <span class="section-num">01 court</span>
+    </div>
+    <div class="shorts-grid">
+      <div class="short-card reveal">
+        <div class="short-embed">
+          <iframe
+            src="https://www.youtube.com/embed/jw8f-nnn2Qg"
+            title="DERBI 115cc — Teaser final"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen>
+          </iframe>
+        </div>
+        <div class="short-info">
+          <p class="short-title">DERBI 115cc — Teaser final</p>
+          <p class="short-label">Zinzin Préparation</p>
+        </div>
+      </div>
     </div>
   </section>
 
